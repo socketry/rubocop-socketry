@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+# Released under the MIT License.
+# Copyright, 2025, by Samuel Williams.
+
 require "rubocop"
 
 module RuboCop
@@ -13,23 +16,23 @@ module RuboCop
 				
 				def on_new_investigation
 					source_buffer = processed_source.buffer
-					prev_indent = ""
+					previous_indent = ""
 					processed_source.lines.each_with_index do |line, index|
 						if line.strip.empty?
 							current_indent = line
-							unless current_indent == prev_indent
+							unless current_indent == previous_indent
 								add_offense(
 									source_range(source_buffer, index + 1, 0, line.length),
 									message: MSG
 								) do |corrector|
 									corrector.replace(
 										source_range(source_buffer, index + 1, 0, line.length),
-										prev_indent
+										previous_indent
 									)
 								end
 							end
 						else
-							prev_indent = line[/^\s*/]
+							previous_indent = line[/^\s*/]
 						end
 					end
 				end

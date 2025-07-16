@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+# Released under the MIT License.
+# Copyright, 2025, by Samuel Williams.
+
 require "lint_roller"
 require_relative "version"
 
@@ -10,7 +13,7 @@ module RuboCop
 				super
 				@version = RuboCop::Socketry::VERSION
 			end
-
+			
 			def about
 				LintRoller::About.new(
 					name: "rubocop-socketry",
@@ -19,7 +22,7 @@ module RuboCop
 					description: "Personal RuboCop rules for Socketry projects."
 				)
 			end
-
+			
 			def rules(context)
 				LintRoller::Rules.new(
 					type: :path,
