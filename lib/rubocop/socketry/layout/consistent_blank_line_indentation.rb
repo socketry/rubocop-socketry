@@ -52,7 +52,7 @@ module RuboCop
 					
 					processed_source.lines.each_with_index do |line, index|
 						line_number = index + 1
-
+						
 						unless delta = indentation_deltas[line_number]
 							# Skip this line (e.g., non-squiggly heredoc content):
 							next
@@ -97,10 +97,19 @@ module RuboCop
 					return unless node.is_a?(Parser::AST::Node)
 					
 					case node.type
-					when :block, :hash, :array, :class, :module, :sclass, :def, :defs, :if, :case, :while, :until, :for, :kwbegin
+					when :block, :hash, :array, :class, :module, :sclass, :def, :defs, :case, :while, :until, :for, :kwbegin
+						
 						if location = node.location
 							deltas[location.line] += 1
 							deltas[location.last_line] -= 1
+						end
+					when :if
+						# We don't want to add deltas for elsif, because it's handled by the if node:
+						if node.keyword == "if"
+							if location = node.location
+								deltas[location.line] += 1
+								deltas[location.last_line] -= 1
+							end
 						end
 					when :dstr
 						if location = node.location

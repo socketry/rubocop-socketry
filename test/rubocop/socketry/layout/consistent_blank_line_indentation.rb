@@ -377,7 +377,7 @@ describe RuboCop::Socketry::Layout::ConsistentBlankLineIndentation do
 			expect(offenses).to be(:empty?)
 		end
 	end
-
+	
 	with "a heredoc with correct body indentation" do
 		let(:source) {"def foo\n\tputs <<~FOO\n\t\tHello\n\t\tWorld\n\tFOO\nend\n"}
 		it "does not register an offense for properly indented heredoc body" do
@@ -388,7 +388,7 @@ describe RuboCop::Socketry::Layout::ConsistentBlankLineIndentation do
 			expect(offenses).to be(:empty?)
 		end
 	end
-
+	
 	with "a heredoc with incorrect body indentation" do
 		let(:source) {"def foo\n\tputs <<~FOO\n\n\t\tHello World\n\tFOO\nend\n"}
 		it "registers an offense for unindented heredoc body" do
@@ -399,7 +399,7 @@ describe RuboCop::Socketry::Layout::ConsistentBlankLineIndentation do
 			expect(offenses).not.to be(:empty?)
 		end
 	end
-
+	
 	with "a non-squiggly heredoc with any indentation" do
 		let(:source) {"def foo\n\tputs <<-FOO\n\t\tHello\n\t\tWorld\n\tFOO\nend\n"}
 		it "does not register an offense for non-squiggly heredoc content" do
@@ -410,7 +410,7 @@ describe RuboCop::Socketry::Layout::ConsistentBlankLineIndentation do
 			expect(offenses).to be(:empty?)
 		end
 	end
-
+	
 	with "a plain heredoc with any indentation" do
 		let(:source) {"def foo\n\tputs <<FOO\n\t\tHello\n\t\tWorld\n\tFOO\nend\n"}
 		it "does not register an offense for plain heredoc content" do
@@ -421,7 +421,7 @@ describe RuboCop::Socketry::Layout::ConsistentBlankLineIndentation do
 			expect(offenses).to be(:empty?)
 		end
 	end
-
+	
 	with "an interpolated string" do
 		let(:source) {"def foo\n\tname = 'world'\n\tputs \"Hello \#{name}\"\n\t\n\tputs 'done'\nend\n"}
 		it "does not interfere with blank line indentation for interpolated strings" do
@@ -430,6 +430,28 @@ describe RuboCop::Socketry::Layout::ConsistentBlankLineIndentation do
 			report = investigator.investigate(processed_source)
 			offenses = report.offenses
 			expect(offenses).to be(:empty?)
+		end
+	end
+	
+		with "a blank line in if/elsif/else clauses with proper indentation" do
+		let(:source) {"if foo\n\t\n\tputs 'foo'\nelsif bar\n\t\n\tputs 'bar'\nelse\n\t\n\tputs 'else'\nend\n"}
+		it "does not register an offense when blank lines are properly indented" do
+			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
+			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
+			report = investigator.investigate(processed_source)
+			offenses = report.offenses
+			expect(offenses).to be(:empty?)
+		end
+	end
+
+	with "a blank line in if/elsif/else clauses with incorrect indentation" do
+		let(:source) {"if foo\n\t\n\tputs 'foo'\nelsif bar\n\t\t\n\tputs 'bar'\nelse\n\t\n\tputs 'else'\nend\n"}
+		it "registers an offense when blank line in elsif is over-indented" do
+			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
+			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
+			report = investigator.investigate(processed_source)
+			offenses = report.offenses
+			expect(offenses).not.to be(:empty?)
 		end
 	end
 end
