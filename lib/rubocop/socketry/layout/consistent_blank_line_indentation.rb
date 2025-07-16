@@ -6,24 +6,34 @@
 require "rubocop"
 
 module RuboCop
-	module Cop
+	module Socketry
 		module Layout
-			# This cop requires that blank lines have the correct indentation based on AST structure.
+			# A RuboCop cop that enforces consistent blank line indentation based on AST structure.
+			# This cop ensures that blank lines are indented correctly according to their context in the code,
+			# using a two-pass algorithm that analyzes the AST to determine proper indentation levels.
 			class ConsistentBlankLineIndentation < RuboCop::Cop::Base
-				extend RuboCop::Cop::AutoCorrector
-				include Alignment
-				include RangeHelp
+				extend Cop::AutoCorrector
+				include Cop::Alignment
+				include Cop::RangeHelp
 				
+				# @attribute [String] The message displayed when a blank line has incorrect indentation.
 				MESSAGE = "Blank lines must have the correct indentation."
 				
+				# Get the configured indentation width from cop configuration or fallback to default.
+				# @returns [Integer] The number of spaces or tabs to use for each indentation level.
 				def configured_indentation_width
 					cop_config["IndentationWidth"] || config.for_cop("Layout/IndentationWidth")["Width"] || 1
 				end
 				
+				# Get the configured indentation style from cop configuration or fallback to default.
+				# @returns [String] The indentation style, either "tab" or "space".
 				def configured_indentation_style
 					cop_config["IndentationStyle"] || config.for_cop("Layout/IndentationStyle")["Style"] || "tab"
 				end
 				
+				# Generate indentation string based on the current level and configured style.
+				# @parameter width [Integer] The number of indentation levels to apply.
+				# @returns [String] The indentation string (tabs or spaces).
 				def indentation(width)
 					case configured_indentation_style
 					when "tab"
@@ -33,6 +43,9 @@ module RuboCop
 					end
 				end
 				
+				# Main investigation method that processes the source code and checks blank line indentation.
+				# This method implements a two-pass algorithm: first building indentation deltas from the AST,
+				# then processing each line to check blank lines against expected indentation.
 				def on_new_investigation
 					indentation_deltas = build_indentation_deltas
 					current_level = 0
@@ -40,7 +53,7 @@ module RuboCop
 					processed_source.lines.each_with_index do |line, index|
 						line_number = index + 1
 						
-						# Blank line:
+						# Check blank lines for correct indentation:
 						if line.strip.empty?
 							expected_indentation = indentation(current_level)
 							if line != expected_indentation
@@ -56,6 +69,7 @@ module RuboCop
 							end
 						end
 						
+						# Apply indentation delta for this line:
 						delta = indentation_deltas[line_number] || 0
 						current_level += delta
 					end
@@ -63,13 +77,19 @@ module RuboCop
 				
 				private
 				
-				# Build a hash of line_number => delta (+1 for indent, -1 for dedent)
+				# Build a hash mapping line numbers to indentation deltas (+1 for indent, -1 for dedent).
+				# This method walks the AST to identify where indentation should increase or decrease.
+				# @returns [Hash(Integer, Integer)] A hash where keys are line numbers and values are deltas.
 				def build_indentation_deltas
 					deltas = Hash.new(0)
 					walk_ast_for_indentation(processed_source.ast, deltas)
 					deltas
 				end
 				
+				# Recursively walk the AST to build indentation deltas for block structures.
+				# This method identifies nodes that should affect indentation and records the deltas.
+				# @parameter node [Parser::AST::Node] The current AST node to process.
+				# @parameter deltas [Hash(Integer, Integer)] The deltas hash to populate.
 				def walk_ast_for_indentation(node, deltas)
 					return unless node.is_a?(Parser::AST::Node)
 					
@@ -86,6 +106,12 @@ module RuboCop
 					end
 				end
 				
+				# Create a source range for a specific line and column position.
+				# @parameter buffer [Parser::Source::Buffer] The source buffer.
+				# @parameter line [Integer] The line number (1-indexed).
+				# @parameter column [Integer] The column position.
+				# @parameter length [Integer] The length of the range.
+				# @returns [Parser::Source::Range] The source range object.
 				def source_range(buffer, line, column, length)
 					Parser::Source::Range.new(buffer, buffer.line_range(line).begin_pos + column, buffer.line_range(line).begin_pos + column + length)
 				end

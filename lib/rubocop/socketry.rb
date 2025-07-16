@@ -5,4 +5,14 @@
 
 require_relative "socketry/version"
 require_relative "socketry/plugin"
-require_relative "socketry/cop/layout/consistent_blank_line_indentation"
+require_relative "socketry/layout/consistent_blank_line_indentation"
+
+# @namespace
+module RuboCop
+	# @namespace
+	module Socketry
+		# @namespace
+		module Layout
+		end
+	end
+end
