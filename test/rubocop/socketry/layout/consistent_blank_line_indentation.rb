@@ -421,4 +421,15 @@ describe RuboCop::Socketry::Layout::ConsistentBlankLineIndentation do
 			expect(offenses).to be(:empty?)
 		end
 	end
+
+	with "an interpolated string" do
+		let(:source) {"def foo\n\tname = 'world'\n\tputs \"Hello \#{name}\"\n\t\n\tputs 'done'\nend\n"}
+		it "does not interfere with blank line indentation for interpolated strings" do
+			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
+			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
+			report = investigator.investigate(processed_source)
+			offenses = report.offenses
+			expect(offenses).to be(:empty?)
+		end
+	end
 end

@@ -52,7 +52,7 @@ module RuboCop
 					
 					processed_source.lines.each_with_index do |line, index|
 						line_number = index + 1
-						
+
 						unless delta = indentation_deltas[line_number]
 							# Skip this line (e.g., non-squiggly heredoc content):
 							next
@@ -104,7 +104,7 @@ module RuboCop
 						end
 					when :dstr
 						if location = node.location
-							if body = location.heredoc_body
+							if location.is_a?(Parser::Source::Map::Heredoc) and body = location.heredoc_body
 								if location.expression.source.start_with?("<<~")
 									# Squiggly heredoc - indentation is significant, add deltas
 									deltas[body.line] += 1
