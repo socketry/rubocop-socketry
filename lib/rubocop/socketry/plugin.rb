@@ -35,7 +35,7 @@ module RuboCop
 				LintRoller::Rules.new(
 					type: :path,
 					config_format: :rubocop,
-					value: Pathname.new(__dir__).join("../../../config/default.yml")
+					value: File.expand_path("config.yaml", __dir__),
 				)
 			end
 		end
