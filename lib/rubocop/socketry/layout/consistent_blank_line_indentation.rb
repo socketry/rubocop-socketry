@@ -53,6 +53,11 @@ module RuboCop
 					processed_source.lines.each_with_index do |line, index|
 						line_number = index + 1
 						
+						unless delta = indentation_deltas[line_number]
+							# Skip this line (e.g., non-squiggly heredoc content):
+							next
+						end
+						
 						# Check blank lines for correct indentation:
 						if line.strip.empty?
 							expected_indentation = indentation(current_level)
@@ -69,8 +74,6 @@ module RuboCop
 							end
 						end
 						
-						# Apply indentation delta for this line:
-						delta = indentation_deltas[line_number] || 0
 						current_level += delta
 					end
 				end
@@ -98,6 +101,21 @@ module RuboCop
 						if location = node.location
 							deltas[location.line] += 1
 							deltas[location.last_line] -= 1
+						end
+					when :dstr
+						if location = node.location
+							if body = location.heredoc_body
+								if location.expression.source.start_with?("<<~")
+									# Squiggly heredoc - indentation is significant, add deltas
+									deltas[body.line] += 1
+									deltas[body.last_line] -= 1
+								else
+									# Non-squiggly heredoc - ignore indentation on these lines
+									(body.line..body.last_line).each do |line|
+										deltas[line] = nil
+									end
+								end
+							end
 						end
 					end
 					

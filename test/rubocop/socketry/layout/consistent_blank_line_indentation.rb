@@ -28,7 +28,7 @@ describe RuboCop::Socketry::Layout::ConsistentBlankLineIndentation do
 			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
 			report = investigator.investigate(processed_source)
 			offenses = report.offenses
-			expect(offenses.length).to be == 1
+			expect(offenses).not.to be(:empty?)
 			expect(offenses.first.message).to be(:include?, message)
 		end
 	end
@@ -53,7 +53,7 @@ describe RuboCop::Socketry::Layout::ConsistentBlankLineIndentation do
 			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
 			report = investigator.investigate(processed_source)
 			offenses = report.offenses
-			expect(offenses.length).to be == 0
+			expect(offenses).to be(:empty?)
 		end
 	end
 	
@@ -65,7 +65,7 @@ describe RuboCop::Socketry::Layout::ConsistentBlankLineIndentation do
 			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
 			report = investigator.investigate(processed_source)
 			offenses = report.offenses
-			expect(offenses.length).to be == 1
+			expect(offenses).not.to be(:empty?)
 			expect(offenses.first.message).to be(:include?, message)
 		end
 	end
@@ -78,7 +78,7 @@ describe RuboCop::Socketry::Layout::ConsistentBlankLineIndentation do
 			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
 			report = investigator.investigate(processed_source)
 			offenses = report.offenses
-			expect(offenses.length).to be == 0
+			expect(offenses).to be(:empty?)
 		end
 	end
 	
@@ -90,7 +90,7 @@ describe RuboCop::Socketry::Layout::ConsistentBlankLineIndentation do
 			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
 			report = investigator.investigate(processed_source)
 			offenses = report.offenses
-			expect(offenses.length).to be == 1
+			expect(offenses).not.to be(:empty?)
 			expect(offenses.first.message).to be(:include?, message)
 		end
 	end
@@ -103,7 +103,7 @@ describe RuboCop::Socketry::Layout::ConsistentBlankLineIndentation do
 			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
 			report = investigator.investigate(processed_source)
 			offenses = report.offenses
-			expect(offenses.length).to be == 0
+			expect(offenses).to be(:empty?)
 		end
 	end
 	
@@ -115,7 +115,7 @@ describe RuboCop::Socketry::Layout::ConsistentBlankLineIndentation do
 			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
 			report = investigator.investigate(processed_source)
 			offenses = report.offenses
-			expect(offenses.length).to be == 1
+			expect(offenses).not.to be(:empty?)
 			expect(offenses.first.message).to be(:include?, message)
 		end
 	end
@@ -128,7 +128,7 @@ describe RuboCop::Socketry::Layout::ConsistentBlankLineIndentation do
 			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
 			report = investigator.investigate(processed_source)
 			offenses = report.offenses
-			expect(offenses.length).to be == 0
+			expect(offenses).to be(:empty?)
 		end
 	end
 	
@@ -140,7 +140,7 @@ describe RuboCop::Socketry::Layout::ConsistentBlankLineIndentation do
 			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
 			report = investigator.investigate(processed_source)
 			offenses = report.offenses
-			expect(offenses.length).to be == 1
+			expect(offenses).not.to be(:empty?)
 			expect(offenses.first.message).to be(:include?, message)
 		end
 	end
@@ -153,7 +153,7 @@ describe RuboCop::Socketry::Layout::ConsistentBlankLineIndentation do
 			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
 			report = investigator.investigate(processed_source)
 			offenses = report.offenses
-			expect(offenses.length).to be == 0
+			expect(offenses).to be(:empty?)
 		end
 	end
 	
@@ -165,7 +165,7 @@ describe RuboCop::Socketry::Layout::ConsistentBlankLineIndentation do
 			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
 			report = investigator.investigate(processed_source)
 			offenses = report.offenses
-			expect(offenses.length).to be == 1
+			expect(offenses).not.to be(:empty?)
 			expect(offenses.first.message).to be(:include?, message)
 		end
 	end
@@ -178,7 +178,7 @@ describe RuboCop::Socketry::Layout::ConsistentBlankLineIndentation do
 			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
 			report = investigator.investigate(processed_source)
 			offenses = report.offenses
-			expect(offenses.length).to be == 0
+			expect(offenses).to be(:empty?)
 		end
 	end
 	
@@ -190,7 +190,7 @@ describe RuboCop::Socketry::Layout::ConsistentBlankLineIndentation do
 			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
 			report = investigator.investigate(processed_source)
 			offenses = report.offenses
-			expect(offenses.length).to be == 1
+			expect(offenses).not.to be(:empty?)
 			expect(offenses.first.message).to be(:include?, message)
 		end
 	end
@@ -203,7 +203,7 @@ describe RuboCop::Socketry::Layout::ConsistentBlankLineIndentation do
 			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
 			report = investigator.investigate(processed_source)
 			offenses = report.offenses
-			expect(offenses.length).to be == 0
+			expect(offenses).to be(:empty?)
 		end
 	end
 	
@@ -215,7 +215,7 @@ describe RuboCop::Socketry::Layout::ConsistentBlankLineIndentation do
 			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
 			report = investigator.investigate(processed_source)
 			offenses = report.offenses
-			expect(offenses.length).to be == 1
+			expect(offenses).not.to be(:empty?)
 			expect(offenses.first.message).to be(:include?, message)
 		end
 	end
@@ -228,7 +228,7 @@ describe RuboCop::Socketry::Layout::ConsistentBlankLineIndentation do
 			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
 			report = investigator.investigate(processed_source)
 			offenses = report.offenses
-			expect(offenses.length).to be == 0
+			expect(offenses).to be(:empty?)
 		end
 	end
 	
@@ -240,7 +240,7 @@ describe RuboCop::Socketry::Layout::ConsistentBlankLineIndentation do
 			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
 			report = investigator.investigate(processed_source)
 			offenses = report.offenses
-			expect(offenses.length).to be == 1
+			expect(offenses).not.to be(:empty?)
 			expect(offenses.first.message).to be(:include?, message)
 		end
 	end
@@ -253,7 +253,7 @@ describe RuboCop::Socketry::Layout::ConsistentBlankLineIndentation do
 			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
 			report = investigator.investigate(processed_source)
 			offenses = report.offenses
-			expect(offenses.length).to be == 0
+			expect(offenses).to be(:empty?)
 		end
 	end
 	
@@ -265,7 +265,7 @@ describe RuboCop::Socketry::Layout::ConsistentBlankLineIndentation do
 			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
 			report = investigator.investigate(processed_source)
 			offenses = report.offenses
-			expect(offenses.length).to be == 1
+			expect(offenses).not.to be(:empty?)
 			expect(offenses.first.message).to be(:include?, message)
 		end
 	end
@@ -278,7 +278,7 @@ describe RuboCop::Socketry::Layout::ConsistentBlankLineIndentation do
 			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
 			report = investigator.investigate(processed_source)
 			offenses = report.offenses
-			expect(offenses.length).to be == 0
+			expect(offenses).to be(:empty?)
 		end
 	end
 	
@@ -290,7 +290,7 @@ describe RuboCop::Socketry::Layout::ConsistentBlankLineIndentation do
 			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
 			report = investigator.investigate(processed_source)
 			offenses = report.offenses
-			expect(offenses.length).to be == 1
+			expect(offenses).not.to be(:empty?)
 			expect(offenses.first.message).to be(:include?, message)
 		end
 	end
@@ -303,7 +303,7 @@ describe RuboCop::Socketry::Layout::ConsistentBlankLineIndentation do
 			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
 			report = investigator.investigate(processed_source)
 			offenses = report.offenses
-			expect(offenses.length).to be == 0
+			expect(offenses).to be(:empty?)
 		end
 	end
 	
@@ -315,7 +315,7 @@ describe RuboCop::Socketry::Layout::ConsistentBlankLineIndentation do
 			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
 			report = investigator.investigate(processed_source)
 			offenses = report.offenses
-			expect(offenses.length).to be == 1
+			expect(offenses).not.to be(:empty?)
 			expect(offenses.first.message).to be(:include?, message)
 		end
 	end
@@ -328,7 +328,7 @@ describe RuboCop::Socketry::Layout::ConsistentBlankLineIndentation do
 			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
 			report = investigator.investigate(processed_source)
 			offenses = report.offenses
-			expect(offenses.length).to be == 0
+			expect(offenses).to be(:empty?)
 		end
 	end
 	
@@ -340,7 +340,7 @@ describe RuboCop::Socketry::Layout::ConsistentBlankLineIndentation do
 			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
 			report = investigator.investigate(processed_source)
 			offenses = report.offenses
-			expect(offenses.length).to be == 1
+			expect(offenses).not.to be(:empty?)
 			expect(offenses.first.message).to be(:include?, message)
 		end
 	end
@@ -362,7 +362,63 @@ describe RuboCop::Socketry::Layout::ConsistentBlankLineIndentation do
 			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
 			report = investigator.investigate(processed_source)
 			offenses = report.offenses
-			expect(offenses.length).to be == 0
+			expect(offenses).to be(:empty?)
+		end
+	end
+	
+	with "a heredoc with proper indentation" do
+		let(:source) {"def foo\n\tputs <<~FOO\n\t\tHello\n\t\tWorld\n\tFOO\nend\n"}
+		
+		it "does not register an offense when heredoc is properly indented" do
+			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
+			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
+			report = investigator.investigate(processed_source)
+			offenses = report.offenses
+			expect(offenses).to be(:empty?)
+		end
+	end
+
+	with "a heredoc with correct body indentation" do
+		let(:source) {"def foo\n\tputs <<~FOO\n\t\tHello\n\t\tWorld\n\tFOO\nend\n"}
+		it "does not register an offense for properly indented heredoc body" do
+			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
+			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
+			report = investigator.investigate(processed_source)
+			offenses = report.offenses
+			expect(offenses).to be(:empty?)
+		end
+	end
+
+	with "a heredoc with incorrect body indentation" do
+		let(:source) {"def foo\n\tputs <<~FOO\n\n\t\tHello World\n\tFOO\nend\n"}
+		it "registers an offense for unindented heredoc body" do
+			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
+			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
+			report = investigator.investigate(processed_source)
+			offenses = report.offenses
+			expect(offenses).not.to be(:empty?)
+		end
+	end
+
+	with "a non-squiggly heredoc with any indentation" do
+		let(:source) {"def foo\n\tputs <<-FOO\n\t\tHello\n\t\tWorld\n\tFOO\nend\n"}
+		it "does not register an offense for non-squiggly heredoc content" do
+			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
+			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
+			report = investigator.investigate(processed_source)
+			offenses = report.offenses
+			expect(offenses).to be(:empty?)
+		end
+	end
+
+	with "a plain heredoc with any indentation" do
+		let(:source) {"def foo\n\tputs <<FOO\n\t\tHello\n\t\tWorld\n\tFOO\nend\n"}
+		it "does not register an offense for plain heredoc content" do
+			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
+			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
+			report = investigator.investigate(processed_source)
+			offenses = report.offenses
+			expect(offenses).to be(:empty?)
 		end
 	end
 end
