@@ -339,4 +339,25 @@ describe RuboCop::Cop::Layout::ConsistentBlankLineIndentation do
 			expect(offenses.first.message).to be(:include?, RuboCop::Cop::Layout::ConsistentBlankLineIndentation::MESSAGE)
 		end
 	end
+
+	with "spaces indentation" do
+		let(:config) do
+			RuboCop::Config.new(
+				'Layout/ConsistentBlankLineIndentation' => {
+					'IndentationWidth' => 2,
+					'IndentationStyle' => 'space'
+				}
+			)
+		end
+		
+		let(:source) { "def foo\n  puts 'bar'\n  \n  puts 'baz'\nend\n" }
+
+		it "handles spaces indentation correctly" do
+			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
+			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
+			report = investigator.investigate(processed_source)
+			offenses = report.offenses
+			expect(offenses.length).to be == 0
+		end
+	end
 end 
