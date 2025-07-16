@@ -10,12 +10,7 @@ RuboCop rules for Socketry projects.
 
 ## Usage
 
-Add this to your `.rubocop.yml`:
-
-``` yaml
-plugins:
-  - rubocop-socketry
-```
+Please see the [project documentation](https://socketry.github.io/rubocop-socketry/) for more details.
 
 ## Available Cops
 
@@ -30,7 +25,11 @@ Layout/ConsistentBlankLineIndentation:
 
 ## Releases
 
-There are no documented releases.
+Please see the [project releases](https://socketry.github.io/rubocop-socketry/releases/index) for all releases.
+
+### v0.1.0
+
+  - Initial implementaiton of `Layout/ConsistentBlankLineIndentation`.
 
 ## Contributing
 
