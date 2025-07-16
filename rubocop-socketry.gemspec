@@ -6,7 +6,7 @@ Gem::Specification.new do |spec|
 	spec.name = "rubocop-socketry"
 	spec.version = RuboCop::Socketry::VERSION
 	
-	spec.summary = "Personal RuboCop rules for Socketry projects"
+	spec.summary = "RuboCop rules for Socketry projects"
 	spec.authors = ["Samuel Williams"]
 	spec.license = "MIT"
 	
@@ -17,6 +17,7 @@ Gem::Specification.new do |spec|
 	
 	spec.metadata = {
 		"default_lint_roller_plugin" => "RuboCop::Socketry::Plugin",
+		"documentation_uri" => "https://socketry.github.io/rubocop-socketry/",
 		"funding_uri" => "https://github.com/sponsors/ioquatix/",
 		"source_code_uri" => "https://github.com/socketry/rubocop-socketry.git",
 	}

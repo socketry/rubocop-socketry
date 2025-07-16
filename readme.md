@@ -6,9 +6,7 @@ RuboCop rules for Socketry projects.
 
 ## Installation
 
-```
-bundle add rubocop-socketry
-```
+    bundle add rubocop-socketry
 
 ## Usage
 
@@ -29,6 +27,10 @@ Ensures that blank lines have the same indentation as the previous non-blank lin
 Layout/ConsistentBlankLineIndentation:
   Enabled: true
 ```
+
+## Releases
+
+There are no documented releases.
 
 ## Contributing
 

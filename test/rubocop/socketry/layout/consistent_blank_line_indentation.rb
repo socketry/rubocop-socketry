@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+# Released under the MIT License.
+# Copyright, 2025, by Samuel Williams.
+
 require "rubocop/socketry/layout/consistent_blank_line_indentation"
 
 describe RuboCop::Socketry::Layout::ConsistentBlankLineIndentation do
@@ -362,4 +365,4 @@ describe RuboCop::Socketry::Layout::ConsistentBlankLineIndentation do
 			expect(offenses.length).to be == 0
 		end
 	end
-end 
+end
