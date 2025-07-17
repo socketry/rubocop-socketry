@@ -114,15 +114,9 @@ module RuboCop
 					when :dstr
 						if location = node.location
 							if location.is_a?(Parser::Source::Map::Heredoc) and body = location.heredoc_body
-								if location.expression.source.start_with?("<<~")
-									# Squiggly heredoc - indentation is significant, add deltas
-									deltas[body.line] += 1
-									deltas[body.last_line] -= 1
-								else
-									# Non-squiggly heredoc - ignore indentation on these lines
-									(body.line..body.last_line).each do |line|
-										deltas[line] = nil
-									end
+								# Don't touch the indentation of heredoc bodies:
+								(body.line..body.last_line).each do |line|
+									deltas[line] = nil
 								end
 							end
 						end

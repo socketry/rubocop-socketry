@@ -396,7 +396,7 @@ describe RuboCop::Socketry::Layout::ConsistentBlankLineIndentation do
 			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
 			report = investigator.investigate(processed_source)
 			offenses = report.offenses
-			expect(offenses).not.to be(:empty?)
+			expect(offenses).to be(:empty?)
 		end
 	end
 	
