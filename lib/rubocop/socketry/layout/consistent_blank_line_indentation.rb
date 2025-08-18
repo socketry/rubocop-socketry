@@ -89,6 +89,8 @@ module RuboCop
 					deltas
 				end
 				
+				STRUCTURAL_NODES = [:array, :hash, :class, :module, :sclass, :def, :defs, :if, :while, :until, :for, :case, :kwbegin]
+				
 				def receiver_handles_indentation(node)
 					if send_node = node.children.first
 						return false unless send_node.type == :send
@@ -97,12 +99,14 @@ module RuboCop
 							# Only structural node types handle their own indentation.
 							# These are nodes that create indentation contexts (arrays, hashes, classes, etc.)
 							# All other receivers (simple references, method calls, literals) should allow block indentation.
-							return [:array, :hash, :class, :module, :sclass, :def, :defs, :if, :while, :until, :for, :case, :kwbegin].include?(receiver.type)
+							return STRUCTURAL_NODES.include?(receiver.type)
 						end
 					end
 					
 					return false
-				end				# Recursively walk the AST to build indentation deltas for block structures.
+				end
+				
+				# Recursively walk the AST to build indentation deltas for block structures.
 				# This method identifies nodes that should affect indentation and records the deltas.
 				# @parameter node [Parser::AST::Node] The current AST node to process.
 				# @parameter deltas [Hash(Integer, Integer)] The deltas hash to populate.
@@ -118,11 +122,6 @@ module RuboCop
 								deltas[location.line] += 1
 								deltas[location.last_line] -= 1
 							end
-						end
-					when :array, :hash, :class, :module, :sclass, :def, :defs, :while, :until, :for, :case, :kwbegin
-						if location = node.location
-							deltas[location.line] += 1
-							deltas[location.last_line] -= 1
 						end
 					when :if
 						# We don't want to add deltas for elsif, because it's handled by the if node:
@@ -140,6 +139,11 @@ module RuboCop
 									deltas[line] = nil
 								end
 							end
+						end
+					when *STRUCTURAL_NODES
+						if location = node.location
+							deltas[location.line] += 1
+							deltas[location.last_line] -= 1
 						end
 					end
 					
