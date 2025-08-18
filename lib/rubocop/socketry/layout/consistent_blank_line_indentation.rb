@@ -94,14 +94,15 @@ module RuboCop
 						return false unless send_node.type == :send
 						
 						if receiver = send_node.children.first
-							return receiver.type != :send
+							# Only structural node types handle their own indentation.
+							# These are nodes that create indentation contexts (arrays, hashes, classes, etc.)
+							# All other receivers (simple references, method calls, literals) should allow block indentation.
+							return [:array, :hash, :class, :module, :sclass, :def, :defs, :if, :while, :until, :for, :case, :kwbegin].include?(receiver.type)
 						end
 					end
 					
 					return false
-				end
-				
-				# Recursively walk the AST to build indentation deltas for block structures.
+				end				# Recursively walk the AST to build indentation deltas for block structures.
 				# This method identifies nodes that should affect indentation and records the deltas.
 				# @parameter node [Parser::AST::Node] The current AST node to process.
 				# @parameter deltas [Hash(Integer, Integer)] The deltas hash to populate.
@@ -118,7 +119,7 @@ module RuboCop
 								deltas[location.last_line] -= 1
 							end
 						end
-					when :hash, :array, :class, :module, :sclass, :def, :defs, :case, :while, :until, :for, :kwbegin
+					when :array, :hash, :class, :module, :sclass, :def, :defs, :while, :until, :for, :case, :kwbegin
 						if location = node.location
 							deltas[location.line] += 1
 							deltas[location.last_line] -= 1

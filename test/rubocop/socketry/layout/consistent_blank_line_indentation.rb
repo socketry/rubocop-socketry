@@ -659,4 +659,28 @@ describe RuboCop::Socketry::Layout::ConsistentBlankLineIndentation do
 			expect(offenses).to be(:empty?)
 		end
 	end
+	
+	with "a blank line inside a block with constant receiver" do
+		let(:source) {"Sus::Shared(\"test\") do |shared|\n\t\n\tshared.call\nend\n"}
+		
+		it "does not register an offense when blank line in block with constant receiver is properly indented" do
+			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
+			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
+			report = investigator.investigate(processed_source)
+			offenses = report.offenses
+			expect(offenses).to be(:empty?)
+		end
+	end
+	
+	with "a blank line inside a block with chained method call receiver" do
+		let(:source) {"obj.method.tap do |result|\n\t\n\tputs result\nend\n"}
+		
+		it "does not register an offense when blank line in block with chained method call is properly indented" do
+			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
+			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
+			report = investigator.investigate(processed_source)
+			offenses = report.offenses
+			expect(offenses).to be(:empty?)
+		end
+	end
 end
