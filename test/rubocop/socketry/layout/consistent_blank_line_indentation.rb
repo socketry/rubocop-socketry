@@ -454,4 +454,209 @@ describe RuboCop::Socketry::Layout::ConsistentBlankLineIndentation do
 			expect(offenses).not.to be(:empty?)
 		end
 	end
+	
+	with "a blank line inside a hash definition with proper indentation" do
+		let(:source) {<<~RUBY}
+			POLICY = {
+				"foo" => false,
+				
+				"bar" => false
+			}.tap{|hash| hash.default = true}
+		RUBY
+		
+		it "does not register an offense when blank line in hash is properly indented" do
+			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
+			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
+			report = investigator.investigate(processed_source)
+			offenses = report.offenses
+			expect(offenses).to be(:empty?)
+		end
+	end
+	
+	with "a blank line inside a hash definition with method chain" do
+		let(:source) {<<~RUBY}
+			CONFIG = {
+				:development => {
+					:database => "dev.db",
+					
+					:logging => true
+				},
+				:production => {
+					:database => "prod.db",
+					:logging => false
+				}
+			}.freeze
+		RUBY
+		
+		it "does not register an offense for blank lines in nested hash with method chain" do
+			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
+			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
+			report = investigator.investigate(processed_source)
+			offenses = report.offenses
+			expect(offenses).to be(:empty?)
+		end
+	end
+	
+	with "a blank line inside an array definition with method call" do
+		let(:source) {<<~RUBY}
+			ITEMS = [
+				"first",
+				"second",
+				
+				"third"
+			].freeze
+		RUBY
+		
+		it "does not register an offense when blank line in array with method call is properly indented" do
+			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
+			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
+			report = investigator.investigate(processed_source)
+			offenses = report.offenses
+			expect(offenses).to be(:empty?)
+		end
+	end
+	
+	with "a blank line inside an array definition with method chain" do
+		let(:source) {<<~RUBY}
+			NUMBERS = [
+				1,
+				2,
+				
+				3,
+				4
+			].map(&:to_s).freeze
+		RUBY
+		
+		it "does not register an offense for blank lines in array with method chain" do
+			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
+			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
+			report = investigator.investigate(processed_source)
+			offenses = report.offenses
+			expect(offenses).to be(:empty?)
+		end
+	end
+	
+	with "a blank line inside an array definition without method call" do
+		let(:source) {<<~RUBY}
+			ITEMS = [
+				"first",
+				"second",
+				
+				"third"
+			]
+		RUBY
+		
+		it "does not register an offense when blank line in standalone array is properly indented" do
+			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
+			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
+			report = investigator.investigate(processed_source)
+			offenses = report.offenses
+			expect(offenses).to be(:empty?)
+		end
+	end
+	
+	with "a blank line inside a module definition with method call" do
+		let(:source) {<<~RUBY}
+			module M
+				
+				def foo
+				end
+			end.tap{}
+		RUBY
+		
+		it "does not register an offense when blank line in module with method call is properly indented" do
+			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
+			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
+			report = investigator.investigate(processed_source)
+			offenses = report.offenses
+			expect(offenses).to be(:empty?)
+		end
+	end
+	
+	with "a blank line inside a class definition with method call" do
+		let(:source) {<<~RUBY}
+			class C
+				
+				def foo
+				end
+			end.freeze
+		RUBY
+		
+		it "does not register an offense when blank line in class with method call is properly indented" do
+			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
+			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
+			report = investigator.investigate(processed_source)
+			offenses = report.offenses
+			expect(offenses).to be(:empty?)
+		end
+	end
+	
+	with "a blank line inside a method definition with method call" do
+		let(:source) {<<~RUBY}
+			def foo
+				
+				puts "hello"
+			end.tap { |result| puts result }
+		RUBY
+		
+		it "does not register an offense when blank line in method with chained call is properly indented" do
+			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
+			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
+			report = investigator.investigate(processed_source)
+			offenses = report.offenses
+			expect(offenses).to be(:empty?)
+		end
+	end
+	
+	with "a blank line inside an if statement with method call" do
+		let(:source) {<<~RUBY}
+			if condition
+				
+				"Hello"
+			end.tap{}
+		RUBY
+		
+		it "does not register an offense when blank line in if with method call is properly indented" do
+			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
+			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
+			report = investigator.investigate(processed_source)
+			offenses = report.offenses
+			expect(offenses).to be(:empty?)
+		end
+	end
+	
+	with "a blank line inside a while loop with method call" do
+		let(:source) {<<~RUBY}
+			while condition
+				
+				puts "hello"
+			end.tap{}
+		RUBY
+		
+		it "does not register an offense when blank line in while with method call is properly indented" do
+			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
+			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
+			report = investigator.investigate(processed_source)
+			offenses = report.offenses
+			expect(offenses).to be(:empty?)
+		end
+	end
+	
+	with "a blank line inside a case statement with method call" do
+		let(:source) {<<~RUBY}
+			case value
+			when 1
+				
+				"one"
+			end.upcase
+		RUBY
+		
+		it "does not register an offense when blank line in case with method call is properly indented" do
+			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
+			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
+			report = investigator.investigate(processed_source)
+			offenses = report.offenses
+			expect(offenses).to be(:empty?)
+		end
+	end
 end

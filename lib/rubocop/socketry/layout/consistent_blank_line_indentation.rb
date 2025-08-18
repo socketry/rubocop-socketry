@@ -89,16 +89,36 @@ module RuboCop
 					deltas
 				end
 				
+				def receiver_handles_indentation(node)
+					if send_node = node.children.first
+						return false unless send_node.type == :send
+						
+						if receiver = send_node.children.first
+							return receiver.type != :send
+						end
+					end
+					
+					return false
+				end
+				
 				# Recursively walk the AST to build indentation deltas for block structures.
 				# This method identifies nodes that should affect indentation and records the deltas.
 				# @parameter node [Parser::AST::Node] The current AST node to process.
 				# @parameter deltas [Hash(Integer, Integer)] The deltas hash to populate.
-				def walk_ast_for_indentation(node, deltas)
+				# @parameter parent [Parser::AST::Node, nil] The parent node for context.
+				def walk_ast_for_indentation(node, deltas, parent = nil)
 					return unless node.is_a?(Parser::AST::Node)
 					
 					case node.type
-					when :block, :hash, :array, :class, :module, :sclass, :def, :defs, :case, :while, :until, :for, :kwbegin
-						
+					when :block
+						# For blocks, we need to be careful about method receiver collections
+						if location = node.location
+							unless receiver_handles_indentation(node)
+								deltas[location.line] += 1
+								deltas[location.last_line] -= 1
+							end
+						end
+					when :hash, :array, :class, :module, :sclass, :def, :defs, :case, :while, :until, :for, :kwbegin
 						if location = node.location
 							deltas[location.line] += 1
 							deltas[location.last_line] -= 1
@@ -123,7 +143,7 @@ module RuboCop
 					end
 					
 					node.children.each do |child|
-						walk_ast_for_indentation(child, deltas)
+						walk_ast_for_indentation(child, deltas, node)
 					end
 				end
 				
