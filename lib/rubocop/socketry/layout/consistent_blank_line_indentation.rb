@@ -125,7 +125,7 @@ module RuboCop
 						end
 					when :if
 						# We don't want to add deltas for elsif, because it's handled by the if node:
-						if node.keyword == "if"
+						if node.keyword == "if" || node.keyword == "unless"
 							if location = node.location
 								deltas[location.line] += 1
 								deltas[location.last_line] -= 1

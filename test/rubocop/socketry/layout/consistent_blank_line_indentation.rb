@@ -683,4 +683,31 @@ describe RuboCop::Socketry::Layout::ConsistentBlankLineIndentation do
 			expect(offenses).to be(:empty?)
 		end
 	end
+	
+	# This test case specifically demonstrates the issue described by the user
+	with "a blank line inside nested unless block" do
+		let(:source) {"def hello(foo)\n\tunless foo\n\t\tx = 10\n\t\t\n\t\ty = 20\n\tend\nend\n"}
+		
+		it "should properly indent blank line with two tabs inside nested unless block" do
+			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
+			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
+			report = investigator.investigate(processed_source)
+			offenses = report.offenses
+			expect(offenses).to be(:empty?)
+		end
+	end
+	
+	# This test case shows the current incorrect behavior 
+	with "a blank line inside nested unless block with incorrect indentation" do
+		let(:source) {"def hello(foo)\n\tunless foo\n\t\tx = 10\n\t\n\t\ty = 20\n\tend\nend\n"}
+		
+		it "should register an offense when blank line has only one tab instead of two" do
+			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
+			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
+			report = investigator.investigate(processed_source)
+			offenses = report.offenses
+			expect(offenses).not.to be(:empty?)
+			expect(offenses.first.message).to be(:include?, message)
+		end
+	end
 end
