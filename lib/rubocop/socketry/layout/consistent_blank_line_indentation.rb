@@ -89,22 +89,7 @@ module RuboCop
 					deltas
 				end
 				
-				STRUCTURAL_NODES = [:array, :hash, :class, :module, :sclass, :def, :defs, :if, :while, :until, :for, :case, :kwbegin]
-				
-				def receiver_handles_indentation(node)
-					if send_node = node.children.first
-						return false unless send_node.type == :send
-						
-						if receiver = send_node.children.first
-							# Only structural node types handle their own indentation.
-							# These are nodes that create indentation contexts (arrays, hashes, classes, etc.)
-							# All other receivers (simple references, method calls, literals) should allow block indentation.
-							return STRUCTURAL_NODES.include?(receiver.type)
-						end
-					end
-					
-					return false
-				end
+				STRUCTURAL_NODES = [:array, :hash, :class, :module, :sclass, :def, :defs, :if, :if, :while, :until, :for, :case, :kwbegin]
 				
 				# Recursively walk the AST to build indentation deltas for block structures.
 				# This method identifies nodes that should affect indentation and records the deltas.
@@ -116,11 +101,11 @@ module RuboCop
 					
 					case node.type
 					when :block
-						# For blocks, we need to be careful about method receiver collections
+						# For blocks, use the actual block begin/end boundaries, not the full location
 						if location = node.location
-							unless receiver_handles_indentation(node)
-								deltas[location.line] += 1
-								deltas[location.last_line] -= 1
+							if location.begin && location.end
+								deltas[location.begin.line] += 1
+								deltas[location.end.line] -= 1
 							end
 						end
 					when :if

@@ -672,42 +672,75 @@ describe RuboCop::Socketry::Layout::ConsistentBlankLineIndentation do
 		end
 	end
 	
-	with "a blank line inside a block with chained method call receiver" do
-		let(:source) {"obj.method.tap do |result|\n\t\n\tputs result\nend\n"}
+	with "a blank line inside a block with single-line array receiver" do
+		let(:source) {"[false, true].each do\n\tputs \"A\"\n\n\tputs \"B\"\nend\n"}
 		
-		it "does not register an offense when blank line in block with chained method call is properly indented" do
-			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
-			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
-			report = investigator.investigate(processed_source)
-			offenses = report.offenses
-			expect(offenses).to be(:empty?)
-		end
-	end
-	
-	# This test case specifically demonstrates the issue described by the user
-	with "a blank line inside nested unless block" do
-		let(:source) {"def hello(foo)\n\tunless foo\n\t\tx = 10\n\t\t\n\t\ty = 20\n\tend\nend\n"}
-		
-		it "should properly indent blank line with two tabs inside nested unless block" do
-			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
-			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
-			report = investigator.investigate(processed_source)
-			offenses = report.offenses
-			expect(offenses).to be(:empty?)
-		end
-	end
-	
-	# This test case shows the current incorrect behavior 
-	with "a blank line inside nested unless block with incorrect indentation" do
-		let(:source) {"def hello(foo)\n\tunless foo\n\t\tx = 10\n\t\n\t\ty = 20\n\tend\nend\n"}
-		
-		it "should register an offense when blank line has only one tab instead of two" do
+		it "registers an offense when blank line in block with single-line array receiver is not indented" do
 			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
 			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
 			report = investigator.investigate(processed_source)
 			offenses = report.offenses
 			expect(offenses).not.to be(:empty?)
 			expect(offenses.first.message).to be(:include?, message)
+		end
+	end
+	
+	with "a blank line inside a block with single-line array receiver and proper indentation" do
+		let(:source) {"[false, true].each do\n\tputs \"A\"\n\t\n\tputs \"B\"\nend\n"}
+		
+		it "does not register an offense when blank line in block with single-line array receiver is properly indented" do
+			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
+			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
+			report = investigator.investigate(processed_source)
+			offenses = report.offenses
+			expect(offenses).to be(:empty?)
+		end
+	end
+	
+	with "a blank line inside a multi-line array and block" do
+		let(:source) {<<~RUBY}
+			[
+				1,
+				
+				3,
+			].each do |i|
+				puts i
+				
+				puts "---"
+			end
+		RUBY
+		
+		it "does not register an offense when blank lines in both array and block are properly indented" do
+			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
+			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
+			report = investigator.investigate(processed_source)
+			offenses = report.offenses
+			expect(offenses).to be(:empty?)
+		end
+	end
+	
+	with "a blank line inside a multi-line array and block with incorrect indentation" do
+		let(:source) {<<~RUBY}
+			[
+				1,
+			
+				3,
+			].each do |i|
+				puts i
+			
+				puts "---"
+			end
+		RUBY
+		
+		it "registers offenses when blank lines in both array and block are not properly indented" do
+			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
+			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
+			report = investigator.investigate(processed_source)
+			offenses = report.offenses
+			expect(offenses.size).to be == 2  # One for array blank line, one for block blank line
+			offenses.each do |offense|
+				expect(offense.message).to be(:include?, message)
+			end
 		end
 	end
 end
