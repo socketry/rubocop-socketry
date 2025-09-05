@@ -743,4 +743,26 @@ describe RuboCop::Socketry::Layout::ConsistentBlankLineIndentation do
 			end
 		end
 	end
+	
+	with "a regex with inconsistent indentation in blank lines" do
+		let(:source) {<<~RUBY}
+			REDACT = /
+				phone
+				| email
+			
+				| device_name
+			/xi
+		RUBY
+		
+		it "registers offenses when blank lines in regex literal are not properly indented" do
+			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
+			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
+			report = investigator.investigate(processed_source)
+			offenses = report.offenses
+			expect(offenses.size).to be > 0
+			offenses.each do |offense|
+				expect(offense.message).to be(:include?, message)
+			end
+		end
+	end
 end

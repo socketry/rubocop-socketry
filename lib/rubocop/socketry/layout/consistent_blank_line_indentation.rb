@@ -89,7 +89,7 @@ module RuboCop
 					deltas
 				end
 				
-				STRUCTURAL_NODES = [:array, :hash, :class, :module, :sclass, :def, :defs, :if, :if, :while, :until, :for, :case, :kwbegin]
+				STRUCTURAL_NODES = [:array, :hash, :class, :module, :sclass, :def, :defs, :if, :if, :while, :until, :for, :case, :kwbegin, :regexp]
 				
 				# Recursively walk the AST to build indentation deltas for block structures.
 				# This method identifies nodes that should affect indentation and records the deltas.
