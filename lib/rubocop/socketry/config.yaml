@@ -7,3 +7,8 @@ Layout/ConsistentBlankLineIndentation:
   Description: "Ensures that blank lines have the same indentation as the previous non-blank line."
   Enabled: true
   VersionAdded: "0.1.0" 
+
+Layout/BlockDelimiterSpacing:
+  Description: "Enforces consistent spacing before block delimiters."
+  Enabled: true
+  VersionAdded: "0.4.0"

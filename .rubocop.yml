@@ -7,6 +7,9 @@ AllCops:
 Layout/ConsistentBlankLineIndentation:
   Enabled: true
 
+Layout/BlockDelimiterSpacing:
+  Enabled: true
+
 Layout/IndentationStyle:
   Enabled: true
   EnforcedStyle: tabs
