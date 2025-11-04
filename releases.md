@@ -1,6 +1,6 @@
 # Releases
 
-## Unreleased
+## v0.4.0
 
   - Added `Layout/BlockDelimiterSpacing` cop to enforce consistent spacing before block delimiters.
 
