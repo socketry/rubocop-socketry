@@ -1,6 +1,6 @@
 # Releases
 
-## Unreleased
+## v0.5.0
 
   - Added `Style/GlobalExceptionVariables` cop to warn against using global exception variables (`$!`, `$@`, `$ERROR_INFO`, `$ERROR_POSITION`).
 
