@@ -246,4 +246,107 @@ describe RuboCop::Socketry::Layout::BlockDelimiterSpacing do
 			expect(offenses.first.message).to be(:include?, "Remove space")
 		end
 	end
+	
+	# Lambda cases
+	with "a lambda with arguments and no space" do
+		let(:source) {"->(foo){foo}"}
+		
+		it "does not register an offense for lambda without space" do
+			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
+			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
+			report = investigator.investigate(processed_source)
+			offenses = report.offenses
+			expect(offenses).to be(:empty?)
+		end
+	end
+	
+	with "a lambda with arguments and space" do
+		let(:source) {"->(foo) {foo}"}
+		
+		it "registers an offense for lambda with space" do
+			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
+			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
+			report = investigator.investigate(processed_source)
+			offenses = report.offenses
+			expect(offenses).not.to be(:empty?)
+			expect(offenses.first.message).to be(:include?, "Remove space")
+		end
+	end
+	
+	with "a lambda without arguments and no space" do
+		let(:source) {"->{puts 'hello'}"}
+		
+		it "does not register an offense for lambda without space" do
+			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
+			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
+			report = investigator.investigate(processed_source)
+			offenses = report.offenses
+			expect(offenses).to be(:empty?)
+		end
+	end
+	
+	with "a lambda without arguments and with space" do
+		let(:source) {"-> {puts 'hello'}"}
+		
+		it "registers an offense for lambda with space" do
+			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
+			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
+			report = investigator.investigate(processed_source)
+			offenses = report.offenses
+			expect(offenses).not.to be(:empty?)
+			expect(offenses.first.message).to be(:include?, "Remove space")
+		end
+	end
+	
+	# proc keyword cases
+	with "proc keyword without space" do
+		let(:source) {"proc{puts 'hello'}"}
+		
+		it "does not register an offense for proc without space" do
+			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
+			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
+			report = investigator.investigate(processed_source)
+			offenses = report.offenses
+			expect(offenses).to be(:empty?)
+		end
+	end
+	
+	with "proc keyword with space" do
+		let(:source) {"proc {puts 'hello'}"}
+		
+		it "registers an offense for proc with space" do
+			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
+			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
+			report = investigator.investigate(processed_source)
+			offenses = report.offenses
+			expect(offenses).not.to be(:empty?)
+			expect(offenses.first.message).to be(:include?, "Remove space")
+		end
+	end
+	
+	# Proc.new cases
+	with "Proc.new without space" do
+		let(:source) {"Proc.new{puts 'hello'}"}
+		
+		it "does not register an offense for Proc.new without space" do
+			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
+			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
+			report = investigator.investigate(processed_source)
+			offenses = report.offenses
+			expect(offenses).to be(:empty?)
+		end
+	end
+	
+	with "Proc.new with space" do
+		let(:source) {"Proc.new {puts 'hello'}"}
+		
+		it "registers an offense for Proc.new with space" do
+			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
+			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
+			report = investigator.investigate(processed_source)
+			offenses = report.offenses
+			expect(offenses).not.to be(:empty?)
+			expect(offenses.first.message).to be(:include?, "Remove space")
+		end
+	end
 end

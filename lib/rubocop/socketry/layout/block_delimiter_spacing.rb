@@ -14,26 +14,39 @@ module RuboCop
 			# - `foo {bar}` - space when method has no parentheses and is not chained
 			# - `foo(1, 2) {bar}` - space after closing paren for standalone methods
 			# - `array.each{|x| x*2}.reverse` - no space for method chains (even with parens)
+			# - `->(foo){foo}` - no space for lambdas (stabby lambda syntax)
+			# - `lambda{foo}` - no space for lambda keyword
+			# - `proc{foo}` - no space for proc keyword
+			# - `Proc.new{foo}` - no space for Proc.new
 			class BlockDelimiterSpacing < RuboCop::Cop::Base
 				extend Cop::AutoCorrector
 				
 				MSG_ADD_SPACE = "Add a space before the opening brace."
 				MSG_REMOVE_SPACE = "Remove space before the opening brace for method chains."
+				MSG_REMOVE_SPACE_LAMBDA = "Remove space before the opening brace for lambdas/procs."
 				
 				def on_block(node)
 					return unless node.braces?
 					
 					send_node = node.send_node
 					
-					# Priority: Check if it's part of a method chain first
+					# Priority 1: Check if it's a lambda or proc
+					# Lambdas/procs should never have space before {
+					if lambda_or_proc?(send_node)
+						# ->(foo){foo} - no space (stabby lambda)
+						# lambda{foo} - no space (lambda keyword)
+						# proc{foo} - no space (proc keyword)
+						# Proc.new{foo} - no space (Proc.new)
+						check_no_space_for_lambda(node, send_node)
+					# Priority 2: Check if it's part of a method chain
 					# Method chains should never have space, even with parentheses
-					if part_of_method_chain?(node)
+					elsif part_of_method_chain?(node)
 						# array.each{|x| x*2}.reverse - no space
 						# obj.method(1, 2){|x| x}.other - also no space
 						check_no_space_before_brace(node, send_node)
 					elsif has_parentheses?(send_node)
 						# foo(1, 2) {bar} - space after ) for standalone methods
-						check_space_after_paren(node, send_node)
+						check_space_after_parentheses(node, send_node)
 					else
 						# foo {bar} - space for standalone methods without parens
 						check_space_before_brace(node, send_node)
@@ -41,6 +54,56 @@ module RuboCop
 				end
 				
 				private
+				
+				# Check if the send node is a lambda or proc (any form)
+				def lambda_or_proc?(send_node)
+					return true if send_node.lambda? # stabby lambda: ->{}
+					return true if send_node.method_name == :lambda # lambda keyword: lambda{}
+					return true if send_node.method_name == :proc # proc keyword: proc{}
+					
+					# Check for Proc.new{}
+					if send_node.method_name == :new && send_node.receiver&.const_type?
+						# Check if the receiver is the Proc constant
+						receiver = send_node.receiver
+						return true if receiver.const_name == :Proc && receiver.children.first.nil?
+					end
+					
+					false
+				end
+				
+				# Check that there's no space before the opening brace for lambdas
+				def check_no_space_for_lambda(block_node, send_node)
+					brace_begin = block_node.loc.begin
+					
+					# Find the position just before the brace
+					char_before_pos = brace_begin.begin_pos - 1
+					
+					return if char_before_pos < 0
+					
+					char_before = processed_source.buffer.source[char_before_pos]
+					
+					# If there's no space before the brace, we're good
+					return unless char_before == " "
+					
+					# Find the extent of whitespace before the brace
+					start_pos = char_before_pos
+					while start_pos > 0 && processed_source.buffer.source[start_pos - 1] =~ /\s/
+						start_pos -= 1
+					end
+					
+					space_range = Parser::Source::Range.new(
+						processed_source.buffer,
+						start_pos,
+						brace_begin.begin_pos
+					)
+					
+					add_offense(
+						space_range,
+						message: MSG_REMOVE_SPACE_LAMBDA
+					) do |corrector|
+						corrector.remove(space_range)
+					end
+				end
 				
 				# Check if the block is part of a method chain (e.g., foo{}.bar or foo.bar{}.baz)
 				def part_of_method_chain?(block_node)
@@ -63,7 +126,7 @@ module RuboCop
 				end
 				
 				# Check that there's a space between closing paren and opening brace
-				def check_space_after_paren(block_node, send_node)
+				def check_space_after_parentheses(block_node, send_node)
 					paren_end = send_node.loc.end
 					brace_begin = block_node.loc.begin
 					
