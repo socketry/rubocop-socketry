@@ -36,8 +36,7 @@ module RuboCop
 			#     puts error.backtrace.first
 			#   end
 			class GlobalExceptionVariables < RuboCop::Cop::Base
-				MSG = "Avoid using global exception variable `%<variable>s`. " \
-				      "Use explicit exception handling with `rescue => error` instead."
+				MSG = "Avoid using global exception variable `%<variable>s`. Use explicit exception handling with `rescue => error` instead."
 				
 				EXCEPTION_VARIABLES = %i[$! $@ $ERROR_INFO $ERROR_POSITION].freeze
 				
