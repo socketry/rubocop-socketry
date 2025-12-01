@@ -9,8 +9,8 @@ describe RuboCop::Socketry::Style::GlobalExceptionVariables do
 	let(:config) {RuboCop::Config.new}
 	let(:cop) {subject.new(config)}
 	
-	# Test $! variable
-	with "code using $!" do
+	# Test $! variable in rescue block (allowed - well-defined scope)
+	with "code using $! in rescue block" do
 		let(:source) do
 			<<~RUBY
 				begin
@@ -21,18 +21,17 @@ describe RuboCop::Socketry::Style::GlobalExceptionVariables do
 			RUBY
 		end
 		
-		it "registers an offense" do
+		it "does not register an offense" do
 			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
 			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
 			report = investigator.investigate(processed_source)
 			offenses = report.offenses
-			expect(offenses).not.to be(:empty?)
-			expect(offenses.first.message).to be(:include?, "$!")
+			expect(offenses).to be(:empty?)
 		end
 	end
 	
-	# Test $@ variable
-	with "code using $@" do
+	# Test $@ variable in rescue block (allowed - well-defined scope)
+	with "code using $@ in rescue block" do
 		let(:source) do
 			<<~RUBY
 				begin
@@ -43,59 +42,74 @@ describe RuboCop::Socketry::Style::GlobalExceptionVariables do
 			RUBY
 		end
 		
-		it "registers an offense" do
+		it "does not register an offense" do
 			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
 			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
 			report = investigator.investigate(processed_source)
 			offenses = report.offenses
-			expect(offenses).not.to be(:empty?)
-			expect(offenses.first.message).to be(:include?, "$@")
+			expect(offenses).to be(:empty?)
 		end
 	end
 	
-	# Test $ERROR_INFO variable
-	with "code using $ERROR_INFO" do
+	# Test $! in ensure block (extremely unsafe - should be flagged)
+	with "code using $! in ensure block" do
 		let(:source) do
 			<<~RUBY
-				require 'English'
 				begin
 					risky_operation
-				rescue
-					puts $ERROR_INFO.message
+				ensure
+					log($!.message) if $!
 				end
 			RUBY
 		end
 		
-		it "registers an offense" do
+		it "registers offenses with unsafe message" do
 			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
 			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
 			report = investigator.investigate(processed_source)
 			offenses = report.offenses
-			expect(offenses).not.to be(:empty?)
-			expect(offenses.first.message).to be(:include?, "$ERROR_INFO")
+			expect(offenses.size).to be == 2
+			expect(offenses.first.message).to be(:include?, "extremely unsafe")
 		end
 	end
 	
-	# Test $ERROR_POSITION variable
-	with "code using $ERROR_POSITION" do
+	# Test $! in rescue modifier (allowed)
+	with "code using $! in rescue modifier" do
 		let(:source) do
 			<<~RUBY
-				require 'English'
-				begin
-					risky_operation
-				rescue
-					puts $ERROR_POSITION.first
+				result = risky_operation rescue $!
+			RUBY
+		end
+		
+		it "does not register an offense" do
+			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
+			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
+			report = investigator.investigate(processed_source)
+			offenses = report.offenses
+			expect(offenses).to be(:empty?)
+		end
+	end
+	
+	# Test $! in parameter defaults (allowed - explicitly opting in)
+	with "code using $! in parameter defaults" do
+		let(:source) do
+			<<~RUBY
+				def foo(error = $!)
+					puts error
+				end
+				
+				def bar(error: $!)
+					puts error
 				end
 			RUBY
 		end
 		
-		it "registers an offense" do
+		it "does not register an offense" do
 			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
 			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
 			report = investigator.investigate(processed_source)
 			offenses = report.offenses
-			expect(offenses).not.to be(:empty?)
-			expect(offenses.first.message).to be(:include?, "$ERROR_POSITION")
+			expect(offenses).to be(:empty?)
 		end
 	end
 	
@@ -143,8 +157,8 @@ describe RuboCop::Socketry::Style::GlobalExceptionVariables do
 		end
 	end
 	
-	# Test multiple uses in same block
-	with "code using multiple global exception variables" do
+	# Test multiple uses in same rescue block (allowed - well-defined scope)
+	with "code using multiple global exception variables in rescue block" do
 		let(:source) do
 			<<~RUBY
 				begin
@@ -156,12 +170,12 @@ describe RuboCop::Socketry::Style::GlobalExceptionVariables do
 			RUBY
 		end
 		
-		it "registers multiple offenses" do
+		it "does not register offenses" do
 			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
 			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
 			report = investigator.investigate(processed_source)
 			offenses = report.offenses
-			expect(offenses.size).to be == 2
+			expect(offenses).to be(:empty?)
 		end
 	end
 	
