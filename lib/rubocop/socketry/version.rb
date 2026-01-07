@@ -5,6 +5,6 @@
 
 module RuboCop
 	module Socketry
-		VERSION = "0.6.1"
+		VERSION = "0.7.0"
 	end
 end 
