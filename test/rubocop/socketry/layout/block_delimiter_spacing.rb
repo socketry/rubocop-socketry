@@ -187,9 +187,9 @@ describe RuboCop::Socketry::Layout::BlockDelimiterSpacing do
 	end
 	
 	with "nested blocks" do
-		let(:source) {"foo {bar {baz}}"}
+		let(:source) {"foo {bar{baz}}"}
 		
-		it "does not register an offense for nested blocks" do
+		it "does not register an offense for nested blocks without inner space" do
 			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
 			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
 			report = investigator.investigate(processed_source)
@@ -341,6 +341,82 @@ describe RuboCop::Socketry::Layout::BlockDelimiterSpacing do
 		let(:source) {"Proc.new {puts 'hello'}"}
 		
 		it "registers an offense for Proc.new with space" do
+			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
+			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
+			report = investigator.investigate(processed_source)
+			offenses = report.offenses
+			expect(offenses).not.to be(:empty?)
+			expect(offenses.first.message).to be(:include?, "Remove space")
+		end
+	end
+	
+	# Expression context cases (assignments, arguments, etc.)
+	with "a block in an assignment without space" do
+		let(:source) {"x = Async{server.run}"}
+		
+		it "does not register an offense for expression context" do
+			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
+			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
+			report = investigator.investigate(processed_source)
+			offenses = report.offenses
+			expect(offenses).to be(:empty?)
+		end
+	end
+	
+	with "a block in an assignment with space" do
+		let(:source) {"x = Async {server.run}"}
+		
+		it "registers an offense for space in expression context" do
+			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
+			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
+			report = investigator.investigate(processed_source)
+			offenses = report.offenses
+			expect(offenses).not.to be(:empty?)
+			expect(offenses.first.message).to be(:include?, "Remove space")
+		end
+	end
+	
+	with "a block as a method argument without space" do
+		let(:source) {"foo(bar{baz})"}
+		
+		it "does not register an offense for expression context" do
+			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
+			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
+			report = investigator.investigate(processed_source)
+			offenses = report.offenses
+			expect(offenses).to be(:empty?)
+		end
+	end
+	
+	with "a block as a method argument with space" do
+		let(:source) {"foo(bar {baz})"}
+		
+		it "registers an offense for space in expression context" do
+			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
+			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
+			report = investigator.investigate(processed_source)
+			offenses = report.offenses
+			expect(offenses).not.to be(:empty?)
+			expect(offenses.first.message).to be(:include?, "Remove space")
+		end
+	end
+	
+	with "a block in a return statement without space" do
+		let(:source) {"return foo{bar}"}
+		
+		it "does not register an offense for expression context" do
+			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
+			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
+			report = investigator.investigate(processed_source)
+			offenses = report.offenses
+			expect(offenses).to be(:empty?)
+		end
+	end
+	
+	with "a block in a return statement with space" do
+		let(:source) {"return foo {bar}"}
+		
+		it "registers an offense for space in expression context" do
 			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
 			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
 			report = investigator.investigate(processed_source)

@@ -11,19 +11,21 @@ module RuboCop
 			# A RuboCop cop that enforces consistent spacing before block delimiters.
 			# 
 			# This cop enforces the following style:
-			# - `foo {bar}` - space when method has no parentheses and is not chained
-			# - `foo(1, 2) {bar}` - space after closing paren for standalone methods
-			# - `array.each{|x| x*2}.reverse` - no space for method chains (even with parens)
-			# - `->(foo){foo}` - no space for lambdas (stabby lambda syntax)
-			# - `lambda{foo}` - no space for lambda keyword
-			# - `proc{foo}` - no space for proc keyword
-			# - `Proc.new{foo}` - no space for Proc.new
+			# - `foo {bar}` - space for top-level statements without parentheses.
+			# - `x = foo{bar}` - no space when part of an expression (assignment, argument, etc).
+			# - `foo(1, 2) {bar}` - space after closing paren for top-level statements.
+			# - `array.each{|x| x*2}.reverse` - no space for method chains.
+			# - `->(foo){foo}` - no space for lambdas (stabby lambda syntax).
+			# - `lambda{foo}` - no space for lambda keyword.
+			# - `proc{foo}` - no space for proc keyword.
+			# - `Proc.new{foo}` - no space for `Proc.new`.
 			class BlockDelimiterSpacing < RuboCop::Cop::Base
 				extend Cop::AutoCorrector
 				
 				MSG_ADD_SPACE = "Add a space before the opening brace."
 				MSG_REMOVE_SPACE = "Remove space before the opening brace for method chains."
 				MSG_REMOVE_SPACE_LAMBDA = "Remove space before the opening brace for lambdas/procs."
+				MSG_REMOVE_SPACE_EXPRESSION = "Remove space before the opening brace for expressions."
 				
 				def on_block(node)
 					return unless node.braces?
@@ -44,6 +46,12 @@ module RuboCop
 						# array.each{|x| x*2}.reverse - no space
 						# obj.method(1, 2){|x| x}.other - also no space
 						check_no_space_before_brace(node, send_node)
+					# Priority 3: Check if it's part of an expression (not top-level)
+					# Blocks within expressions should have no space
+					elsif part_of_expression?(node)
+						# x = Async{server.run} - no space (part of assignment)
+						# foo(bar{baz}) - no space (part of argument)
+						check_no_space_for_expression(node, send_node)
 					elsif has_parentheses?(send_node)
 						# foo(1, 2) {bar} - space after ) for standalone methods
 						check_space_after_parentheses(node, send_node)
@@ -69,6 +77,18 @@ module RuboCop
 					end
 					
 					false
+				end
+				
+				# Check if the block is part of an expression (not a top-level statement)
+				# Top-level statements are directly inside a :begin node (file/method body)
+				# and should have space. Everything else (expressions, nested blocks) should not.
+				def part_of_expression?(node)
+					parent = node.parent
+					return false unless parent
+					
+					# If parent is a :begin node (sequence of statements), this is top-level
+					# Otherwise, it's part of an expression or nested context
+					parent.type != :begin
 				end
 				
 				# Check that there's no space before the opening brace for lambdas
@@ -100,6 +120,40 @@ module RuboCop
 					add_offense(
 						space_range,
 						message: MSG_REMOVE_SPACE_LAMBDA
+					) do |corrector|
+						corrector.remove(space_range)
+					end
+				end
+				
+				# Check that there's no space before the opening brace for expressions
+				def check_no_space_for_expression(block_node, send_node)
+					brace_begin = block_node.loc.begin
+					
+					# Find the position just before the brace
+					char_before_pos = brace_begin.begin_pos - 1
+					
+					return if char_before_pos < 0
+					
+					char_before = processed_source.buffer.source[char_before_pos]
+					
+					# If there's no space before the brace, we're good
+					return unless char_before == " "
+					
+					# Find the extent of whitespace before the brace
+					start_pos = char_before_pos
+					while start_pos > 0 && processed_source.buffer.source[start_pos - 1] =~ /\s/
+						start_pos -= 1
+					end
+					
+					space_range = Parser::Source::Range.new(
+						processed_source.buffer,
+						start_pos,
+						brace_begin.begin_pos
+					)
+					
+					add_offense(
+						space_range,
+						message: MSG_REMOVE_SPACE_EXPRESSION
 					) do |corrector|
 						corrector.remove(space_range)
 					end
