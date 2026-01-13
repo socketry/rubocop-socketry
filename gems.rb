@@ -7,12 +7,12 @@ source "https://rubygems.org"
 
 gemspec
 
-gem "agent-context"
-
 group :maintenance, optional: true do
 	gem "bake-gem"
 	gem "bake-modernize"
 	gem "bake-releases"
+	
+	gem "agent-context"
 	
 	gem "utopia-project"
 end
