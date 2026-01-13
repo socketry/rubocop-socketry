@@ -1,5 +1,9 @@
 # Releases
 
+## Unreleased
+
+  - Fixed `Layout/BlockDelimiterSpacing` to correctly distinguish between statement and expression contexts for blocks inside `do...end` blocks.
+
 ## v0.7.0
 
   - Fixed `Layout/BlockDelimiterSpacing` to correctly handle blocks inside `do...end` blocks (statements should have space before braces).

@@ -425,4 +425,42 @@ describe RuboCop::Socketry::Layout::BlockDelimiterSpacing do
 			expect(offenses.first.message).to be(:include?, "Remove space")
 		end
 	end
+	
+	# Nested blocks inside do...end blocks
+	with "a braces block inside a do...end block" do
+		let(:source) do
+			<<~RUBY
+				foo do
+					bar {baz}
+				end
+			RUBY
+		end
+		
+		it "does not register an offense for standalone method call inside do...end" do
+			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
+			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
+			report = investigator.investigate(processed_source)
+			offenses = report.offenses
+			expect(offenses).to be(:empty?)
+		end
+	end
+	
+	with "a braces block inside a do...end block without space" do
+		let(:source) do
+			<<~RUBY
+				foo do
+					bar{baz}
+				end
+			RUBY
+		end
+		
+		it "registers an offense for missing space before brace" do
+			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
+			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
+			report = investigator.investigate(processed_source)
+			offenses = report.offenses
+			expect(offenses).not.to be(:empty?)
+			expect(offenses.first.message).to be(:include?, "Add a space")
+		end
+	end
 end
