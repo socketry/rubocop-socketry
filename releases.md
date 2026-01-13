@@ -1,6 +1,6 @@
 # Releases
 
-## Unreleased
+## v0.8.0
 
   - Fixed `Layout/BlockDelimiterSpacing` to correctly distinguish between statement and expression contexts for blocks inside `do...end` blocks.
 
@@ -11,9 +11,9 @@
 ## v0.6.1
 
   - Refined `Style/GlobalExceptionVariables` to allow global exception variables in safe contexts:
-    - Inside rescue blocks (well-defined scope).
-    - In rescue modifiers (`expression rescue $!`).
-    - In method parameter defaults (`def foo(error = $!)`).
+      - Inside rescue blocks (well-defined scope).
+      - In rescue modifiers (`expression rescue $!`).
+      - In method parameter defaults (`def foo(error = $!)`).
   - Added specific warning for using global exception variables in ensure blocks (extremely unsafe).
 
 ## v0.6.0
