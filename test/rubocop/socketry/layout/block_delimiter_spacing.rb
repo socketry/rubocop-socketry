@@ -463,4 +463,42 @@ describe RuboCop::Socketry::Layout::BlockDelimiterSpacing do
 			expect(offenses.first.message).to be(:include?, "Add a space")
 		end
 	end
+	
+	# Method chains inside do...end should still follow method chain rules
+	with "a method chain with block inside do...end block" do
+		let(:source) do
+			<<~RUBY
+				foo do
+					obj.bar{baz}
+				end
+			RUBY
+		end
+		
+		it "does not register an offense (method chain rules apply)" do
+			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
+			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
+			report = investigator.investigate(processed_source)
+			offenses = report.offenses
+			expect(offenses).to be(:empty?)
+		end
+	end
+	
+	with "a method chain with block and space inside do...end block" do
+		let(:source) do
+			<<~RUBY
+				foo do
+					obj.bar {baz}
+				end
+			RUBY
+		end
+		
+		it "registers an offense for unwanted space in method chain" do
+			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
+			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
+			report = investigator.investigate(processed_source)
+			offenses = report.offenses
+			expect(offenses).not.to be(:empty?)
+			expect(offenses.first.message).to be(:include?, "Remove space")
+		end
+	end
 end
