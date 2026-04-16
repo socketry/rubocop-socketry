@@ -804,4 +804,30 @@ describe RuboCop::Socketry::Layout::ConsistentBlankLineIndentation do
 			expect(offenses.first.message).to be(:include?, message)
 		end
 	end
+	
+	# Test case for multiple structures opening on the same line (e.g., `[..., {`)
+	with "a blank line in nested array and hash with correct indentation" do
+		let(:source) {"let(:extensions) do\n\t::Protocol::WebSocket::Extensions::Client.new([\n\t\t[Protocol::WebSocket::Extension::Compression, {\n\t\t\tclient_no_context_takeover: true,\n\t\t\t\n\t\t\tclient_max_window_bits: 12\n\t\t}]\n\t])\nend\n"}
+		
+		it "does not register an offense when blank line is properly indented (3 tabs, not 4)" do
+			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
+			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
+			report = investigator.investigate(processed_source)
+			offenses = report.offenses
+			expect(offenses).to be(:empty?)
+		end
+	end
+	
+	with "a blank line in nested array and hash with incorrect indentation" do
+		let(:source) {"let(:extensions) do\n\t::Protocol::WebSocket::Extensions::Client.new([\n\t\t[Protocol::WebSocket::Extension::Compression, {\n\t\t\tclient_no_context_takeover: true,\n\t\t\t\t\n\t\t\tclient_max_window_bits: 12\n\t\t}]\n\t])\nend\n"}
+		
+		it "registers an offense when blank line has too much indentation (4 tabs instead of 3)" do
+			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
+			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
+			report = investigator.investigate(processed_source)
+			offenses = report.offenses
+			expect(offenses).not.to be(:empty?)
+			expect(offenses.first.message).to be(:include?, message)
+		end
+	end
 end

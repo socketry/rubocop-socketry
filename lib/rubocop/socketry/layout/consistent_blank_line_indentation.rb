@@ -61,6 +61,7 @@ module RuboCop
 						# Check blank lines for correct indentation:
 						if line.strip.empty?
 							expected_indentation = indentation(current_level)
+							
 							if line != expected_indentation
 								add_offense(
 									source_range(processed_source.buffer, line_number, 0, line.length),
@@ -84,9 +85,13 @@ module RuboCop
 				# This method walks the AST to identify where indentation should increase or decrease.
 				# @returns [Hash(Integer, Integer)] A hash where keys are line numbers and values are deltas.
 				def build_indentation_deltas
-					deltas = Hash.new(0)
-					walk_ast_for_indentation(processed_source.ast, deltas)
-					deltas
+					Hash.new(0).tap do |deltas|
+						walk_ast_for_indentation(processed_source.ast, deltas)
+						
+						# Cap deltas to a maximum of +1 or -1 per line to handle cases where
+						# multiple structures open/close on the same line (e.g., `[..., {`)
+						deltas.transform_values!{|delta| delta.nil? ? nil : delta.clamp(-1, 1)}
+					end
 				end
 				
 				STRUCTURAL_NODES = [:array, :hash, :class, :module, :sclass, :def, :defs, :if, :if, :while, :until, :for, :case, :kwbegin, :regexp]

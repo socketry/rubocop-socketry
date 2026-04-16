@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Released under the MIT License.
-# Copyright, 2025-2026, by Samuel Williams.
+# Copyright, 2025, by Samuel Williams.
 
 require "rubocop"
 
@@ -81,28 +81,14 @@ module RuboCop
 				
 				# Check if the block is part of an expression (not a top-level statement)
 				# Top-level statements are directly inside a :begin node (file/method body)
-				# or inside do...end block bodies, and should have space.
-				# Everything else (expressions, nested arguments, etc.) should not have space.
+				# and should have space. Everything else (expressions, nested blocks) should not.
 				def part_of_expression?(node)
 					parent = node.parent
 					return false unless parent
 					
 					# If parent is a :begin node (sequence of statements), this is top-level
-					return false if parent.type == :begin
-					
-					# If parent is a :block node, check if it's a do...end block
-					# do...end blocks contain statements (no space)
-					# {...} blocks contain expressions (space required)
-					if parent.type == :block
-						# do...end blocks use keywords, {...} blocks use braces
-						return false unless parent.braces?
-					end
-					
-					# Check if we're in a :kwbegin node (begin...end block body)
-					return false if parent.type == :kwbegin
-					
-					# Otherwise, it's part of an expression (assignment, argument, etc.)
-					true
+					# Otherwise, it's part of an expression or nested context
+					parent.type != :begin
 				end
 				
 				# Check that there's no space before the opening brace for lambdas
