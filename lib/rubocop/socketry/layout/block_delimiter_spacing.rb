@@ -86,9 +86,25 @@ module RuboCop
 					parent = node.parent
 					return false unless parent
 					
-					# If parent is a :begin node (sequence of statements), this is top-level
-					# Otherwise, it's part of an expression or nested context
-					parent.type != :begin
+					case parent.type
+					when :begin
+						# Sequence of statements — this is a top-level statement.
+						false
+					when :block, :numblock
+						# When a block is the sole body statement of an outer block there is no
+						# :begin wrapper; the outer block node is the direct parent.
+						# Only the body slot counts as a statement context, and only when the
+						# outer block itself spans multiple lines (e.g. a do…end describe/context
+						# block).  Single-line inline blocks (`foo {bar{baz}}`) keep their
+						# compact style.
+						parent.body == node ? !parent.multiline? : true
+					when :def, :defs, :class, :module, :sclass
+						# Same situation for method / class / module bodies with a single
+						# statement — they are always multi-line in practice.
+						parent.body != node
+					else
+						true
+					end
 				end
 				
 				# Check that there's no space before the opening brace for lambdas

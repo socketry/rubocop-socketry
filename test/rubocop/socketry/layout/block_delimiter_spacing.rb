@@ -425,4 +425,183 @@ describe RuboCop::Socketry::Layout::BlockDelimiterSpacing do
 			expect(offenses.first.message).to be(:include?, "Remove space")
 		end
 	end
+	
+	# Blocks as sole body of an outer block (no :begin wrapper in AST)
+	with "Async as the only statement inside an outer block" do
+		let(:source) {"describe Foo do\n\tAsync {foo}\nend"}
+		
+		it "does not register an offense when space is present" do
+			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
+			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
+			report = investigator.investigate(processed_source)
+			offenses = report.offenses
+			expect(offenses).to be(:empty?)
+		end
+	end
+	
+	with "Async without space as the only statement inside an outer block" do
+		let(:source) {"describe Foo do\n\tAsync{foo}\nend"}
+		
+		it "registers an offense when space is missing" do
+			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
+			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
+			report = investigator.investigate(processed_source)
+			offenses = report.offenses
+			expect(offenses).not.to be(:empty?)
+			expect(offenses.first.message).to be(:include?, "Add a space")
+		end
+	end
+	
+	with "let(:bar) as the only statement inside an outer block" do
+		let(:source) {"describe Foo do\n\tlet(:bar) {baz}\nend"}
+		
+		it "does not register an offense when space is present" do
+			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
+			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
+			report = investigator.investigate(processed_source)
+			offenses = report.offenses
+			expect(offenses).to be(:empty?)
+		end
+	end
+	
+	with "let(:bar) without space as the only statement inside an outer block" do
+		let(:source) {"describe Foo do\n\tlet(:bar){baz}\nend"}
+		
+		it "registers an offense when space is missing after paren" do
+			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
+			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
+			report = investigator.investigate(processed_source)
+			offenses = report.offenses
+			expect(offenses).not.to be(:empty?)
+			expect(offenses.first.message).to be(:include?, "Add a space")
+		end
+	end
+	
+	with "a block as the only statement in a method body" do
+		let(:source) {"def run\n\tAsync {foo}\nend"}
+		
+		it "does not register an offense when space is present" do
+			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
+			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
+			report = investigator.investigate(processed_source)
+			offenses = report.offenses
+			expect(offenses).to be(:empty?)
+		end
+	end
+	
+	with "a block without space as the only statement in a method body" do
+		let(:source) {"def run\n\tAsync{foo}\nend"}
+		
+		it "registers an offense when space is missing" do
+			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
+			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
+			report = investigator.investigate(processed_source)
+			offenses = report.offenses
+			expect(offenses).not.to be(:empty?)
+			expect(offenses.first.message).to be(:include?, "Add a space")
+		end
+	end
+	
+	# Multi-statement outer block — :begin node is present, same rules should apply
+	with "a block among multiple statements inside an outer block" do
+		let(:source) {"describe Foo do\n\tbar\n\tAsync {foo}\nend"}
+		
+		it "does not register an offense when space is present" do
+			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
+			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
+			report = investigator.investigate(processed_source)
+			offenses = report.offenses
+			expect(offenses).to be(:empty?)
+		end
+	end
+	
+	with "a block without space among multiple statements inside an outer block" do
+		let(:source) {"describe Foo do\n\tbar\n\tAsync{foo}\nend"}
+		
+		it "registers an offense when space is missing" do
+			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
+			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
+			report = investigator.investigate(processed_source)
+			offenses = report.offenses
+			expect(offenses).not.to be(:empty?)
+			expect(offenses.first.message).to be(:include?, "Add a space")
+		end
+	end
+	
+	# Class and module bodies
+	with "a block as the only statement in a class body" do
+		let(:source) {"class Foo\n\tAsync {foo}\nend"}
+		
+		it "does not register an offense when space is present" do
+			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
+			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
+			report = investigator.investigate(processed_source)
+			offenses = report.offenses
+			expect(offenses).to be(:empty?)
+		end
+	end
+	
+	with "a block as the only statement in a module body" do
+		let(:source) {"module Foo\n\tAsync {foo}\nend"}
+		
+		it "does not register an offense when space is present" do
+			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
+			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
+			report = investigator.investigate(processed_source)
+			offenses = report.offenses
+			expect(offenses).to be(:empty?)
+		end
+	end
+	
+	# Single-line outer block — inner block stays compact (no space)
+	with "a block as the sole body of a single-line outer block" do
+		let(:source) {"foo {Async{bar}}"}
+		
+		it "does not register an offense for the inner block without space" do
+			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
+			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
+			report = investigator.investigate(processed_source)
+			offenses = report.offenses
+			expect(offenses).to be(:empty?)
+		end
+	end
+	
+	with "a block with space as the sole body of a single-line outer block" do
+		let(:source) {"foo {Async {bar}}"}
+		
+		it "registers an offense for the inner block with space" do
+			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
+			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
+			report = investigator.investigate(processed_source)
+			offenses = report.offenses
+			expect(offenses).not.to be(:empty?)
+			expect(offenses.first.message).to be(:include?, "Remove space")
+		end
+	end
+	
+	# Assignment inside an outer block still removes the space
+	with "a block in an assignment inside an outer block" do
+		let(:source) {"describe Foo do\n\tx = Async{foo}\nend"}
+		
+		it "does not register an offense for compact expression style" do
+			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
+			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
+			report = investigator.investigate(processed_source)
+			offenses = report.offenses
+			expect(offenses).to be(:empty?)
+		end
+	end
+	
+	with "a block with space in an assignment inside an outer block" do
+		let(:source) {"describe Foo do\n\tx = Async {foo}\nend"}
+		
+		it "registers an offense when space is present in expression context" do
+			processed_source = RuboCop::ProcessedSource.new(source, RUBY_VERSION.to_f)
+			investigator = RuboCop::Cop::Commissioner.new([cop], [], raise_error: true)
+			report = investigator.investigate(processed_source)
+			offenses = report.offenses
+			expect(offenses).not.to be(:empty?)
+			expect(offenses.first.message).to be(:include?, "Remove space")
+		end
+	end
 end
