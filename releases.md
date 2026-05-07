@@ -1,6 +1,6 @@
 # Releases
 
-## Unreleased
+## v0.10.0
 
   - Fixed `Layout/BlockDelimiterSpacing` to correctly treat a block as a statement (requiring space before `{`) when it is the sole body of a multi-line outer block or method/class/module definition. Previously, the absence of a `:begin` wrapper in the AST caused such blocks (e.g. `Async {foo}` or `let(:bar) {baz}` inside a `describe`/`context` block) to be misclassified as expression-context and have their space incorrectly removed.
   - Single-line inline outer blocks (e.g. `foo {bar{baz}}`) continue to use compact style with no space before the inner brace.
